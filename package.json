@@ -1,0 +1,29 @@
+{
+  "name": "cordova-plugin-udeskplugin",
+  "version": "1.0.0",
+  "description": "udesk im",
+  "cordova": {
+    "id": "cordova-plugin-udeskPlugin",
+    "platforms": [
+      "android"
+    ]
+  },
+  "keywords": [
+    "ecosystem:cordova",
+    "cordova-android"
+  ],
+  "author": "Txiaomo",
+  "license": "ISC",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/1ziton/UdeskPlugin.git"
+  },
+  "bugs": {
+    "url": "https://github.com/1ziton/UdeskPlugin/issues"
+  },
+  "homepage": "https://github.com/1ziton/UdeskPlugin#readme"
+}
