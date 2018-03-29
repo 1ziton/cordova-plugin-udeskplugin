@@ -5,12 +5,14 @@
   "cordova": {
     "id": "cordova-plugin-udeskPlugin",
     "platforms": [
-      "android"
+      "android",
+      "ios"
     ]
   },
   "keywords": [
     "ecosystem:cordova",
-    "cordova-android"
+    "cordova-android",
+    "cordova-ios"
   ],
   "author": "Txiaomo",
   "license": "ISC",

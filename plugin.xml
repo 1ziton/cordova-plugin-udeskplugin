@@ -21,4 +21,13 @@
         <source-file src="src/android/UdeskPlugin.java" 
             target-dir="src/cordova/plugin/UdeskPlugin/UdeskPlugin" />
     </platform>
+
+    <platform name="ios">
+        <config-file parent="/*" target="config.xml">
+            <feature name="UdeskPlugin">
+                <param name="ios-package" value="UdeskPlugin"/>
+            </feature>
+        </config-file>
+        <source-file src="src/ios/UdeskPlugin.m"/>
+    </platform>
 </plugin>
