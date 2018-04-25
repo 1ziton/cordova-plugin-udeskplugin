@@ -6,8 +6,6 @@ import org.apache.cordova.CallbackContext;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,13 +13,24 @@ import udesk.UdeskConst;
 import udesk.UdeskSDKManager;
 import udesk.model.UdeskCommodityItem;
 
-import android.util.Log;
-import android.widget.Toast;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Intent;
+import android.support.v4.app.NotificationCompat;
+
+import udesk.activity.UdeskChatActivity;
+import udesk.messagemanager.UdeskMessageManager;
+import udesk.model.MsgNotice;
+import yzt.jzt.R;
 /**
  * This class echoes a string called from JavaScript.
  */
 public class UdeskPlugin extends CordovaPlugin {
-
+    //未读消息
+    private String msg="";
+    //未读消息数
+    private int num=0;
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         if (action.equals("uDeskMethod")) {
@@ -46,6 +55,19 @@ public class UdeskPlugin extends CordovaPlugin {
                 UdeskSDKManager.getInstance().setUserInfo(cordova.getActivity(),sdktoken,info);
                 //  设置用户头像
                 UdeskSDKManager.getInstance().setCustomerUrl(CustomerUrl);
+                UdeskMessageManager.getInstance().event_OnNewMsgNotice.bind(this,"OnNewMsgNotice");
+                if (object.getString("messageFlag").equals("getUnreadMsg")){
+                    /*
+                    * 获取未读消息数
+                    * */
+                    num=UdeskSDKManager.getInstance().getCurrentConnectUnReadMsgCount();
+                    JSONObject obj=new JSONObject();
+                    obj.put("messageCount",num);
+                    obj.put("messageStr",msg);
+                    //获取未读消息
+                    callbackContext.success(obj);
+                    return true;
+                }
                 // 打开客服
                 UdeskSDKManager.getInstance().entryChat(cordova.getActivity());
                 if (!object.isNull("title")){
@@ -68,44 +90,41 @@ public class UdeskPlugin extends CordovaPlugin {
             }else{
                 return false;
             }
-
-            /*
-            * 指定客服ID
-            * */
-//            if(obj[9]!=null){
-//                agentId=obj[9].toString();//客服ID
-//                UdeskSDKManager.getInstance().lanuchChatByAgentId(cordova.getActivity(),agentId);
-//            }
-            /*
-            *指定客服组ID
-            */
-//            if(obj[10]!=null){
-//                groupId=obj[10].toString();//客服组ID
-//                UdeskSDKManager.getInstance().lanuchChatByGroupId(cordova.getActivity(),groupId);
-//            }
-            /*
-            * 获取未读消息数
-            * */
-            int num=UdeskSDKManager.getInstance().getCurrentConnectUnReadMsgCount();
-            /*
-            * 删除客户聊天数据
-            * */
-            // UdeskSDKManager.getInstance().deleteMsg();
-            /*
-            * 断开与Udesk服务器连接
-            * */
-            // UdeskSDKManager.getInstance().disConnectXmpp();
-
-            // PluginResult result=new PluginResult(PluginResult.Status.OK,num);
-            // result.setKeepCallback(true);
-            // callbackContext.sendPluginResult(result);
-            // 帮助中心
-            // UdeskSDKManager.getInstance().toLanuchHelperAcitivty(getBaseContext());
-
-            callbackContext.success(num);
             return true;
         }
         return false;
+    }
+
+    public void OnNewMsgNotice(MsgNotice msgNotice) {
+        if (msgNotice==null){
+            return;
+        }
+        String notify_service=cordova.getActivity().NOTIFICATION_SERVICE;
+        NotificationManager notificationManager= (NotificationManager) cordova.getActivity().getSystemService(notify_service);
+        int icon = R.mipmap.icon;
+        CharSequence tickerText = "您有新消息了";
+        long when = System.currentTimeMillis();
+        CharSequence contentTitle = "客服消息";
+        CharSequence contentText = msgNotice.getContent();
+        Intent notificationIntent = null;
+        notificationIntent = new Intent(cordova.getActivity(), UdeskChatActivity.class);
+        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent contentIntent = PendingIntent.getActivity(cordova.getActivity(), 0,
+            notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(cordova.getActivity());
+        Notification noti = builder.setSmallIcon(icon)
+            .setContentTitle(contentTitle)
+            .setContentText(contentText)
+            .setTicker(tickerText)
+            .setContentIntent(contentIntent)
+            .setWhen(when).build();
+        noti.flags = Notification.FLAG_AUTO_CANCEL;
+        noti.defaults |= Notification.DEFAULT_VIBRATE;
+        noti.defaults |= Notification.DEFAULT_LIGHTS;
+        noti.defaults = Notification.DEFAULT_SOUND;
+        msg= (String) contentText;
+
+        notificationManager.notify(1, noti);
     }
 
     private void coolMethod(String message, CallbackContext callbackContext) {
