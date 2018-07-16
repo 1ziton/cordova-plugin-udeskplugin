@@ -1,4 +1,4 @@
-package cordova.plugin.UdeskPlugin;
+package cordova.plugin.udeskplugin;
 
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CallbackContext;
